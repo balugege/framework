@@ -1077,8 +1077,12 @@ public class Binder<BEAN> implements Serializable {
     private void handleFieldValueChange(Binding<BEAN, ?> binding) {
         hasChanges.add(binding);
         if (getBean() != null) {
-            if (validate().isOk()) {
+            BinderValidationStatus<BEAN> status = validate(false);
+            if (status.isOk()) {
                 writeBeanIfValid(getBean());
+            } else {
+                getValidationStatusHandler().statusChange(status);
+                fireStatusChangeEvent(!status.isOk());
             }
         } else {
             binding.validate();
